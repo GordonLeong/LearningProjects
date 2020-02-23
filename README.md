@@ -5,4 +5,5 @@ Simple scripts used to automate repetitive work processes at a bank over the pas
 
 # File name: Basic SQLite (Dataquest)
 A basic guided project involving simple queries and sub queries using the SQLite language
+
 Analysis was done using the CIA Factbook Dataset in Jupyter Notebook
