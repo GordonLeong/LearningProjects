@@ -49,38 +49,7 @@ get_ipython().run_cell_magic('sql', '', 'SELECT AVG(population), AVG(area) FROM 
 get_ipython().run_cell_magic('sql', '', 'SELECT name \nFROM facts\nWHERE population > (SELECT AVG(population) FROM facts) \nAND area < (SELECT AVG(area) FROM facts)')
 
 
-# In[ ]:
-
-
-
-
-
-# In[ ]:
-
-
-
-
-
-# In[ ]:
-
-
-
-
-
-# In[ ]:
-
-
-
-
-
-# In[ ]:
-
-
-
-
-
-# In[ ]:
-
+#
 
 
 
