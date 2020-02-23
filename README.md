@@ -1,6 +1,6 @@
 #### LearningProjects
 A repository to showcase projects that are done as part of my effort to learn various programming skills and languages.
-# File name: VBA Scripts
+# File name: VBA Scripts (Excel)
 Simple scripts used to automate repetitive work processes at a bank over the past 2 years
 
 # File name: Basic SQLite (Dataquest)
