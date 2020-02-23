@@ -1,0 +1,449 @@
+
+Sub areCovenantsDue()
+
+Sheets("Covenants").Activate
+
+'declaring variables
+Dim lastRow As Integer
+Dim mth, year, mthcomp, yearcomp As String
+
+'find the last row
+lastRow = Cells(Rows.Count, "A").End(xlUp).Row
+
+'insert a column
+Columns("B:C").Insert Shift:=xlToRight
+
+'user inputs month and year that he wants to check
+mthcomp = InputBox("I want to check if Covenants are due in...(mmm)")
+yearcomp = InputBox("I want to check if Covenants are due in.....(yyyy)")
+
+Range("C1").Value = "Due in " & mthcomp & " ?"
+Range("C1").Interior.ColorIndex = 6
+
+'for loop
+For i = 2 To lastRow 'lastRow
+    mth = WorksheetFunction.Text(Range("A" & i), "mmm")
+    year = WorksheetFunction.Text(Range("A" & i), "yyyy")
+    'compare year
+    jComp = StrComp(year, yearcomp)
+    'compare month
+    iComp = StrComp(mth, mthcomp)
+        'if then else condition
+        If jComp = 0 And iComp = 0 _
+        Then Range("C" & i).Value = "Due" _
+        Else: Range("C" & i).Value = "Not Due"
+
+Next i
+
+End Sub
+====================================
+
+Sub compileData()
+
+Sheets("Extended SG").Activate
+ActiveSheet.Range("A1:R1").Select
+Selection.Copy
+Dim sgRow As Integer
+Dim hkRow As Integer
+
+Sheets("Consolidated").Select
+Sheets("Consolidated").Range("A1:R1").PasteSpecial 'paste headers
+
+    With Sheets("Extended SG").UsedRange
+            .Resize(.Rows.Count - 1, .Columns.Count).Offset(1, 0).Copy Sheets("Consolidated").Range("A2")
+    sgRow = Cells(Rows.Count, "A").End(xlUp).Row  'count rows of data post SG data
+    End With ' paste data from SG worksheet
+    
+    
+
+    With Sheets("Extended HK").UsedRange
+            .Resize(.Rows.Count - 1, .Columns.Count).Offset(1, 0).Copy Sheets("Consolidated").Range("A" & sgRow + 1)
+            'count rows of data post SG data
+    End With 'paste data from HK worksheet below that of SG worksheet
+    
+    
+    
+Sheets("Consolidated").Activate
+    ActiveSheet.UsedRange.Select
+    	Selection.Font.Size = 8
+    	Cells.Select
+    	Cells.EntireColumn.AutoFit
+    	Cells.EntireRow.AutoFit
+    
+Dim Lst As Long
+    Lst = Range("B" & Rows.Count).End(xlUp).Row
+    	
+	With Range("A2")
+    		.Value = "1"
+    		.AutoFill Destination:=Range("A2").Resize(Lst - 1), Type:=xlFillSeries
+    	End With
+    
+    Sheets("Trend").Activate
+    Range("A" & Cells(Rows.Count, "A").End(xlUp).Row + 1).Value = Format(Date, mmmYYYY)
+    Range("B" & Cells(Rows.Count, "B").End(xlUp).Row + 1).Value = Lst - 1
+    
+End Sub
+================================================================================================================
+
+Sub noNumberSelection()
+Dim Rng As Range
+Dim WorkRng As Range
+On Error Resume Next ' continue despite runtime error
+xTitleId = "Remove Numbers from "
+Set WorkRng = Application.Selection
+Set WorkRng = Application.InputBox("Range", xTitleId, WorkRng.Address, Type:=8) 'type 8 is a range object
+    For Each Rng In WorkRng ' for every cell/ range in selection
+    output = "" 'some variable that refers to the value of each cell in the range
+        For i = 1 To Len(Rng.Value) 'iterating over each letter in every single cell, from 1 to total length of cell content
+            xTemp = Mid(Rng.Value, i, 1) 'mid works like its regular excel formula - stores every letter in a temporary variable
+            'selected range, taking every letter in that cell.
+            If xTemp Like "[0-9]" Then ' check if it is equal to 0-9, if true, then variable that stores each character in the loop is saved as blank.
+                xletter = ""
+            Else
+                xletter = xTemp 'otherwise retain the original value stored in the temp variable
+            End If
+            output = output & xletter 'within the loop, place the output variable that contains the full value of the cell to be the previous letters in the loop and the next letter.
+        Next i
+        Rng.Value = output
+    Next
+End Sub
+========================================================================================================
+Sub maskMySelection()
+
+Dim Rng As Range
+Dim WorkRng As Range
+On Error Resume Next ' continue despite runtime error
+xTitleId = "Select client name data to be masked "
+Set WorkRng = Application.Selection
+Set WorkRng = Application.InputBox("Range", xTitleId, WorkRng.Address, Type:=8) 'type 8 is a range object
+    For Each Rng In WorkRng ' for every cell/ range in selection
+        output = "" 'some variable that refers to the value of each cell in the range
+        For i = 1 To Len(Rng.Value) 'iterating over each letter in every single cell, from 1 to total length of cell content
+            xTemp = Mid(Rng.Value, i, 1) 'mid works like its regular excel formula - stores every letter in a temporary variable
+            'selected range, taking every letter in that cell.
+            If xTemp Like "[a,e,i,o,u]" Then ' check if it is equal to 0-9, if true, then variable that stores each character in the loop is saved as blank.
+                xletter = "*"
+            Else
+                xletter = xTemp 'otherwise retain the original value stored in the temp variable
+            End If
+            output = output & xletter 'within the loop, place the output variable that contains the full value of the cell to be the previous letters in the loop and the next letter.
+        Next i
+        Rng.Value = output
+    Next
+End Sub
+
+
+===========================================================================================================
+
+Sub autoRemoveNumber()
+Sheets("Consolidated").Select
+lastRow = Cells(Rows.Count, "A").End(xlUp).Row
+    For Each Rng In Range("A1:A" & lastRow)
+        output = "" 'some variable that refers to the value of each cell in the range
+        For i = 1 To Len(Rng.Value) 'iterating over each letter in every single cell, from 1 to total length of cell content
+            xTemp = Mid(Rng.Value, i, 1) 'mid works like its regular excel formula - stores every letter in a temporary variable
+            'selected range, taking every letter in that cell.
+                If xTemp Like "[0-9]" Then ' check if it is equal to 0-9, if true, then variable that stores each character in the loop is saved as blank.
+                    xletter = ""
+                Else
+                    xletter = xTemp 'otherwise retain the original value stored in the temp variable
+                End If
+                output = output & xletter 'within the loop, place the output variable that contains the full value of the cell to be the previous letters in the loop and the next letter.
+        Next i
+        Rng.Value = output
+
+    Next
+End Sub
+===========================================================================================================
+
+Sub autoMask()
+Sheets("Consolidated").Select
+lastRow = Cells(Rows.Count, "A").End(xlUp).Row
+    For Each Rng In Range("A1:A" & lastRow)
+        output = "" 'container that captures edited value of cell.
+        For i = 1 To Len(Rng.Value) 'iterating over each letter in every single cell, from 1 to total length of cell content
+            xTemp = Mid(Rng.Value, i, 1) 'mid works like its regular excel formula - stores every letter in a temporary variable
+            'selected range, taking every letter in that cell.
+                If xTemp Like "[a,e,i,o,u]" Then ' check if it is equal to vowels, if true, then variable that stores each character in the loop is saved as asterisk
+                    xletter = "*"
+                Else
+                    xletter = xTemp 'otherwise retain the original value stored in the temp variable
+                End If
+                output = output & xletter 'within the loop, place the output variable that contains the full value of the cell to be the previous letters in the loop and the next letter.
+        Next i
+        Rng.Value = output'assign cell value to the final value stored in output variable
+
+    Next
+
+
+End Sub
+
+
+======================================================================================================================
+Sub Loop_and_Copy_Values()
+
+Dim c As Range, lastrow As Long, nextrow As Long, lastrowB As Long, lastrowC As Long, nextrowB As Long, nextrowC As Long
+
+    
+    Sheets("MA").Select
+    'Select the worksheet
+
+    lastrow = Cells(Rows.Count, "A").End(xlUp).Row
+    'select the last active cell in row A
+    
+    For Each c In Range("A1:A" & lastrow)
+    'For each cell in the range A: last active cell row
+        nextrow = Cells(Rows.Count, "A").End(xlUp).Row + 1
+        'add one row down
+        Range(Cells(nextrow, "A"), Cells(nextrow + 10, "A")).Value = c
+        'cell reference every row + 10 assign value c, where c represents each value in column A in turn.
+    Next c
+    
+    Range("A1:A" & lastrow).Delete shift:=xlUp
+    'Dunno what this does
+    
+
+
+    lastrow = Cells(Rows.Count, "B").End(xlUp).Row
+    'select the last active cell in row B
+    
+    For Each c In Range("B1:B" & lastrow)
+    'For each cell in the range A: last active cell row
+        nextrow = Cells(Rows.Count, "B").End(xlUp).Row + 1
+        'add one row down
+        Range(Cells(nextrow, "B"), Cells(nextrow + 10, "B")).Value = c
+        'cell reference every row + 10 assign value c, where c represents each value in column A in turn.
+    Next c
+    
+    Range("B1:B" & lastrow).Delete shift:=xlUp
+    'Dunno what this does
+    
+        
+    lastrow = Cells(Rows.Count, "C").End(xlUp).Row
+    'select the last active cell in row C
+    
+    For Each c In Range("C1:C" & lastrow)
+    'For each cell in the range C: last active cell row
+        nextrow = Cells(Rows.Count, "C").End(xlUp).Row + 1
+        'add one row down
+        Range(Cells(nextrow, "C"), Cells(nextrow + 10, "C")).Value = c
+        'cell reference every row + 10 assign value c, where c represents each value in column A in turn.
+    Next c
+    
+    Range("C1:C" & lastrow).Delete shift:=xlUp
+
+End Sub
+
+=====================================================================================================================================================
+
+Sub Copy_and_Paste()
+
+Sheets("MA").Select
+Dim i As Integer
+
+For i = 1 To 10
+    Range("A1:A10").Select
+    Selection.Copy
+    Range("A1:A10").Offset(10 * i, 0).PasteSpecial
+
+Next i
+
+
+
+End Sub
+========================================================================================================================================================
+
+Sub colourmered()
+
+
+Dim i As Integer
+Dim lastRow As Integer
+
+lastRow = Cells(Rows.Count, "A").End(xlUp).Row
+Dim month As Integer
+Dim c As Range
+Sheets("Sheet1").Activate
+
+With ActiveSheet
+
+	For i = 1 To 12
+		For j = 1 To lastRow
+    			For Each c In Range("A2:A" & lastRow)
+			month = c.Value
+			If month = i Then c.Offset(0, i).Interior.ColorIndex = 3
+			Next c
+		Next j
+	Next i
+End With
+    
+End Sub
+
+=================================================================================================================================================================
+
+
+Sub apriltomarch()
+Sheets("Sheet2").Activate
+
+With ActiveSheet
+
+Dim lastRow As Integer
+
+lastRow = Cells(Rows.Count, "A").End(xlUp).Row
+
+	For Each c In Range("A2:A" & lastRow)
+
+		If c.Value = 1 Then c.Offset(0, 10).Interior.ColorIndex = 3
+		If c.Value = 2 Then c.Offset(0, 11).Interior.ColorIndex = 3
+		If c.Value = 3 Then c.Offset(0, 12).Interior.ColorIndex = 3
+		If c.Value = 4 Then c.Offset(0, 1).Interior.ColorIndex = 3
+		If c.Value = 5 Then c.Offset(0, 2).Interior.ColorIndex = 3
+		If c.Value = 6 Then c.Offset(0, 3).Interior.ColorIndex = 3
+		If c.Value = 7 Then c.Offset(0, 4).Interior.ColorIndex = 3
+		If c.Value = 8 Then c.Offset(0, 5).Interior.ColorIndex = 3
+		If c.Value = 9 Then c.Offset(0, 6).Interior.ColorIndex = 3
+		If c.Value = 10 Then c.Offset(0, 7).Interior.ColorIndex = 3
+		If c.Value = 11 Then c.Offset(0, 8).Interior.ColorIndex = 3
+		If c.Value = 12 Then c.Offset(0, 9).Interior.ColorIndex = 3
+
+	Next c
+End With
+
+End Sub
+
+============================================================================================================
+
+Sub apriltomarch()
+Sheets("Sheet2").Activate
+
+With ActiveSheet
+
+Dim lastRow As Integer
+
+lastRow = Cells(Rows.Count, "A").End(xlUp).Row
+
+For Each c In Range("A2:A" & lastRow)
+
+If c.Value = 1 Then
+            c.Offset(0, 10).Interior.ColorIndex = 3
+            c.Offset(0, 11).Interior.ColorIndex = 3
+            c.Offset(0, 12).Interior.ColorIndex = 3
+            
+    
+ElseIf c.Value = 2 Then
+                c.Offset(0, 11).Interior.ColorIndex = 3
+                c.Offset(0, 12).Interior.ColorIndex = 3
+         
+
+ElseIf c.Value = 3 Then
+                c.Offset(0, 12).Interior.ColorIndex = 3
+                
+
+ElseIf c.Value = 4 Then
+                    c.Offset(0, 1).Interior.ColorIndex = 3
+                    c.Offset(0, 2).Interior.ColorIndex = 3
+                    c.Offset(0, 3).Interior.ColorIndex = 3
+                    
+
+ElseIf c.Value = 5 Then
+                    c.Offset(0, 2).Interior.ColorIndex = 3
+                    c.Offset(0, 3).Interior.ColorIndex = 3
+                    c.Offset(0, 4).Interior.ColorIndex = 3
+                    
+ElseIf c.Value = 6 Then
+                    c.Offset(0, 3).Interior.ColorIndex = 3
+                    c.Offset(0, 4).Interior.ColorIndex = 3
+                    c.Offset(0, 5).Interior.ColorIndex = 3
+                    
+ElseIf c.Value = 7 Then
+                    c.Offset(0, 4).Interior.ColorIndex = 3
+                    c.Offset(0, 5).Interior.ColorIndex = 3
+                    c.Offset(0, 6).Interior.ColorIndex = 3
+                    
+ElseIf c.Value = 8 Then
+                    c.Offset(0, 5).Interior.ColorIndex = 3
+                    c.Offset(0, 6).Interior.ColorIndex = 3
+                    c.Offset(0, 7).Interior.ColorIndex = 3
+                    
+ElseIf c.Value = 9 Then
+                    c.Offset(0, 6).Interior.ColorIndex = 3
+                    c.Offset(0, 7).Interior.ColorIndex = 3
+                    c.Offset(0, 8).Interior.ColorIndex = 3
+                    
+
+
+ElseIf c.Value = 10 Then
+                    c.Offset(0, 7).Interior.ColorIndex = 3
+                    c.Offset(0, 8).Interior.ColorIndex = 3
+                    c.Offset(0, 9).Interior.ColorIndex = 3
+                    
+
+ElseIf c.Value = 11 Then
+                    c.Offset(0, 8).Interior.ColorIndex = 3
+                    c.Offset(0, 9).Interior.ColorIndex = 3
+                    c.Offset(0, 10).Interior.ColorIndex = 3
+                    
+ElseIf c.Value = 12 Then
+                    c.Offset(0, 9).Interior.ColorIndex = 3
+                    c.Offset(0, 10).Interior.ColorIndex = 3
+                    c.Offset(0, 11).Interior.ColorIndex = 3
+                    
+    End If
+    
+    Next c
+    
+    End With
+    
+
+
+End Sub
+
+======================================================================================================================
+
+Sub RemoveNum()
+
+Dim Rng As Range
+Dim WorkRng As Range
+On Error Resume Next ' continue despite runtime error
+xTitleId = "Remove Numbers from "
+Set WorkRng = Application.Selection
+Set WorkRng = Application.InputBox("Range", xTitleId, WorkRng.Address, Type:=8) 'type 8 is a range object
+For Each Rng In WorkRng ' for every cell/ range in selection
+    output = "" 'some variable that refers to the value of each cell in the range
+    For i = 1 To Len(Rng.Value) 'iterating over each letter in every single cell, from 1 to total length of cell content
+        xTemp = Mid(Rng.Value, i, 1) 'mid works like its regular excel formula - stores every letter in a temporary variable
+        'selected range, taking every letter in that cell.
+        If xTemp Like "[0-9]" Then ' check if it is equal to 0-9, if true, then variable that stores each character in the loop is saved as blank.
+            xletter = ""
+        Else
+            xletter = xTemp 'otherwise retain the original value stored in the temp variable
+        End If
+        output = output & xletter 'within the loop, place the output variable that contains the full value of the cell to be the previous letters in the loop and the next letter.
+    Next i
+    Rng.Value = output
+Next
+End Sub
+====
+
+Sub replaceVowels()
+
+Dim Rng As Range
+Dim WorkRng As Range
+On Error Resume Next ' continue despite runtime error
+xTitleId = "Select client name data to be masked "
+Set WorkRng = Application.Selection
+Set WorkRng = Application.InputBox("Range", xTitleId, WorkRng.Address, Type:=8) 'type 8 is a range object
+For Each Rng In WorkRng ' for every cell/ range in selection
+    output = "" 'some variable that refers to the value of each cell in the range
+    For i = 1 To Len(Rng.Value) 'iterating over each letter in every single cell, from 1 to total length of cell content
+        xTemp = Mid(Rng.Value, i, 1) 'mid works like its regular excel formula - stores every letter in a temporary variable
+        'selected range, taking every letter in that cell.
+        If xTemp Like "[a,e,i,o,u]" Then ' check if it is equal to 0-9, if true, then variable that stores each character in the loop is saved as blank.
+            xletter = "*"
+        Else
+            xletter = xTemp 'otherwise retain the original value stored in the temp variable
+        End If
+        output = output & xletter 'within the loop, place the output variable that contains the full value of the cell to be the previous letters in the loop and the next letter.
+    Next i
+    Rng.Value = output
+Next
+End Sub
